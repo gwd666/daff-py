@@ -1,10 +1,7 @@
-[![Build Status](https://travis-ci.org/paulfitz/daff.svg?branch=master)](https://travis-ci.org/paulfitz/daff)
 [![NPM version](https://badge.fury.io/js/daff.svg)](http://badge.fury.io/js/daff)
-[![Gem Version](https://badge.fury.io/rb/daff.svg)](http://badge.fury.io/rb/daff)
 [![PyPI version](https://badge.fury.io/py/daff.svg)](http://badge.fury.io/py/daff)
 [![PHP version](https://badge.fury.io/ph/paulfitz%2Fdaff-php.svg)](http://badge.fury.io/ph/paulfitz%2Fdaff-php)
-[![Bower version](https://badge.fury.io/bo/daff.svg)](http://badge.fury.io/bo/daff)
-![Badge count](http://img.shields.io/:badges-7/7-33aa33.svg)
+[![Gem Version](https://badge.fury.io/rb/daff.svg)](http://badge.fury.io/rb/daff)
 
 daff: data diff
 ===============
@@ -24,22 +21,18 @@ pip install daff     # python
 gem install daff     # ruby
 composer require paulfitz/daff-php  # php
 install.packages('daff') # R wrapper by Edwin de Jonge
-bower install daff   # web/javascript
 ````
 
+Use on the web from a CDN:
+```
+<script src="https://cdn.jsdelivr.net/npm/daff@latest/lib/daff.min.js"></script>
+```
+
 Other translations are available here:
-> https://github.com/paulfitz/daff/releases
+> https://github.com/paulfitz/daff/releases/tag/v1.3.16
 
 Or use the library to view csv diffs on github via a chrome extension:
 > https://github.com/theodi/csvhub
-
-The diff format used by `daff` is specified here:
-> http://paulfitz.github.io/daff-doc/spec.html
-
-This library is a stripped down version of the coopy toolbox (see
-http://share.find.coop).  To compare tables from different origins,
-or with automatically generated IDs, or other complications, check out
-the coopy toolbox.
 
 The program
 -----------
@@ -118,8 +111,9 @@ You can use `daff` as a library from any supported language.  We take
 here the example of Javascript.  To use `daff` on a webpage,
 first include `daff.js`:
 ```html
-<script src="daff.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daff@1.4.2/lib/daff.min.js"></script>
 ```
+You can find a [minimal demo](https://paulfitz.github.io/daff/minimal-demo.html) on the project website.
 Or if using node outside the browser:
 ```js
 var daff = require('daff');
@@ -128,13 +122,13 @@ var daff = require('daff');
 For concreteness, assume we have two versions of a table,
 `data1` and `data2`:
 ```js
-var data1 = [
+const data1 = [
     ['Country','Capital'],
     ['Ireland','Dublin'],
     ['France','Paris'],
     ['Spain','Barcelona']
 ];
-var data2 = [
+const data2 = [
     ['Country','Code','Capital'],
     ['Ireland','ie','Dublin'],
     ['France','fr','Paris'],
@@ -146,33 +140,35 @@ var data2 = [
 To make those tables accessible to the library, we wrap them
 in `daff.TableView`:
 ```js
-var table1 = new daff.TableView(data1);
-var table2 = new daff.TableView(data2);
+const table1 = new daff.TableView(data1);
+const table2 = new daff.TableView(data2);
 ```
 
 We can now compute the alignment between the rows and columns
 in the two tables:
 ```js
-var alignment = daff.compareTables(table1,table2).align();
+const alignment = daff.compareTables(table1,table2).align();
 ```
 
 To produce a diff from the alignment, we first need a table
 for the output:
 ```js
-var data_diff = [];
-var table_diff = new daff.TableView(data_diff);
+const data_diff = [];
+const table_diff = new daff.TableView(data_diff);
 ```
 
 Using default options for the diff:
 ```js
-var flags = new daff.CompareFlags();
-var highlighter = new daff.TableDiff(alignment,flags);
+const flags = new daff.CompareFlags();
+const highlighter = new daff.TableDiff(alignment,flags);
 highlighter.hilite(table_diff);
 ```
 
 The diff is now in `data_diff` in highlighter format, see
 specification here:
 > http://paulfitz.github.io/daff-doc/spec.html
+>
+> https://specs.frictionlessdata.io/tabular-diff/
 
 ```js
 [ [ '!', '', '+++', '' ],
@@ -187,9 +183,9 @@ For visualization, you may want to convert this to a HTML table
 with appropriate classes on cells so you can color-code inserts,
 deletes, updates, etc.  You can do this with:
 ```js
-var diff2html = new daff.DiffRender();
+const diff2html = new daff.DiffRender();
 diff2html.render(table_diff);
-var table_diff_html = diff2html.html();
+const table_diff_html = diff2html.html();
 ```
 
 For 3-way differences (that is, comparing two tables given knowledge
@@ -198,13 +194,13 @@ table as the first argument).
 
 Here is how to apply that difference as a patch:
 ```js
-var patcher = new daff.HighlightPatch(table1,table_diff);
+const patcher = new daff.HighlightPatch(table1,table_diff);
 patcher.apply();
 // table1 should now equal table2
 ```
 
 For other languages, you should find sample code in
-the packages on the [Releases](https://github.com/paulfitz/daff/releases) page.
+the packages on the [Releases](https://github.com/paulfitz/daff/releases/tag/v1.3.16) page.
 
 Supported languages
 -------------------
@@ -253,7 +249,6 @@ API documentation
 Sponsors
 --------
 
-<img src="http://datacommons.coop/images/the_zen_of_venn.png" alt="the zen of venn" height="100">
 The <a href="https://datacommons.coop">Data Commons Co-op</a>,  "perhaps the geekiest of all cooperative organizations on the planet," has given great moral support during the development of `daff`.
 Donate a multiple of `42.42` in your currency to let them know you care: <a href="https://datacommons.coop/donate/">https://datacommons.coop/donate/</a>.
 

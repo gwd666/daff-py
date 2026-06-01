@@ -98,19 +98,21 @@ php:
 	@echo 'or try "php php_bin/example.php" for an example of using daff as a library'
 
 
+version = $(shell grep "\"version\"" package.json | grep -E -o "[.0-9]+")
+
 java:
 	rm -rf java_bin
 	haxe -D no-compilation language/java.hxml
 	cp scripts/JavaTableView.java java_bin/src/coopy
-	cd java_bin && find src -iname "*.java" > cmd
+	mv java_bin/src java_bin/java
+	mkdir -p java_bin/daff/src/main
+	mv java_bin/java java_bin/daff/src/main
+	cp packaging/java/pom.xml java_bin/daff
 	cp scripts/Example.java java_bin
-	echo "Main-Class: coopy.Coopy" > java_bin/manifest
-	cd java_bin && mkdir obj
-	cd java_bin && javac -sourcepath src -d obj -g:none "@cmd"
-	cd java_bin/obj && jar cvfm ../daff.jar ../manifest .
-	cd java_bin && javac -cp daff.jar Example.java
-	@echo 'Output in java_bin, run "java -jar java_bin/daff.jar" for help'
-	@echo 'Run example with "java -cp java_bin/daff.jar:java_bin Example"'
+	cd java_bin/daff; mvn build-helper:parse-version versions:set -DnewVersion=$(version) versions:commit; mvn clean package
+	cd java_bin; javac -cp daff/target/daff-$(version).jar Example.java
+	@echo 'Output in java_bin/daff/target, run "java -jar java_bin/daff/target/daff-$(version).jar" for help'
+	@echo 'Run example with "java -cp java_bin/daff/target/daff-$(version).jar:java_bin Example"'
 
 cs:
 	haxe language/cs.hxml
@@ -321,14 +323,16 @@ setup_py: best_py
 	echo "def main():\n\tCoopy.main()" >> daff.py
 	echo "def main():\n\tCoopy.main()" >> daff/__init__.py
 
-sdist: setup_py
+sdist_no_twine: setup_py
 	rm -rf dist
 	cp README.md README
-	python3 setup.py sdist
+	python3 setup.py sdist bdist_wheel
 	cd dist && mkdir tmp && cd tmp && tar xzvf ../daff*.tar.gz && cd daff-*[0-9] && ./setup.py build
-	python3 setup.py sdist
-	twine upload dist/*.tar.gz
+	python3 setup.py sdist bdist_wheel
 	rm -rf dist/tmp
+
+sdist: sdist_no_twine
+	twine upload dist/*
 
 
 ##############################################################################
